@@ -1,5 +1,6 @@
 package com.oms.profile_service.controller;
 
+import com.oms.profile_service.dto.ChangePasswordRequest;
 import com.oms.profile_service.dto.ProfileRequest;
 import com.oms.profile_service.dto.ProfileResponse;
 import com.oms.profile_service.service.ProfileService;
@@ -43,6 +44,12 @@ public class ProfileController {
 	@PutMapping("/{id}")
 	public ProfileResponse update(@PathVariable Long id, @Valid @RequestBody ProfileRequest request) {
 		return profileService.update(id, request);
+	}
+
+	@PutMapping("/{id}/password")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void changePassword(@PathVariable Long id, @Valid @RequestBody ChangePasswordRequest request) {
+		profileService.changePassword(id, request);
 	}
 
 	@DeleteMapping("/{id}")

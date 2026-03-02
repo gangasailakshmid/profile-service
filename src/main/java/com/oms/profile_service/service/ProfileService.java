@@ -1,5 +1,6 @@
 package com.oms.profile_service.service;
 
+import com.oms.profile_service.dto.ChangePasswordRequest;
 import com.oms.profile_service.dto.ProfileRequest;
 import com.oms.profile_service.dto.ProfileResponse;
 import com.oms.profile_service.entity.Profile;
@@ -49,10 +50,20 @@ public class ProfileService {
 		Profile profile = findEntity(id);
 		validateUnique(request.customerCode(), request.email(), id);
 		apply(request, profile);
-		if (request.password() != null && !request.password().isBlank()) {
-			profile.setPasswordHash(passwordEncoder.encode(request.password()));
-		}
 		return map(profileRepository.save(profile));
+	}
+
+	@Transactional
+	public void changePassword(Long id, ChangePasswordRequest request) {
+		Profile profile = findEntity(id);
+		if (!passwordEncoder.matches(request.currentPassword(), profile.getPasswordHash())) {
+			throw new BadRequestException("Current password is incorrect");
+		}
+		if (passwordEncoder.matches(request.newPassword(), profile.getPasswordHash())) {
+			throw new BadRequestException("New password must be different from current password");
+		}
+		profile.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+		profileRepository.save(profile);
 	}
 
 	@Transactional
